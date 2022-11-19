@@ -18,7 +18,7 @@ import resetPTG from './reset.js';
 function restoreOptions(options, loadedShortcuts) {
   // Shortcuts
   loadedShortcuts.forEach((shortcut) => {
-    if (Object.prototype.hasOwnProperty.call(shortcut, 'name')) {
+    if (!options.shortcut.hasOwnProperty(shortcut.name)) {
       return;
     }
     if (options.shortcut[shortcut.name].disabled) {
@@ -63,7 +63,7 @@ function attachEventHandler(options, loadedShortcuts) {
       .querySelector('.enableShortcut')
       .addEventListener('click', enableShortcut.bind(this, options));
 
-    if (Object.prototype.hasOwnProperty.call(shortcut, 'name')) {
+    if (options.shortcut.hasOwnProperty(shortcut.name)) {
       shortcutNode
         .querySelector('.disableShortcut')
         .addEventListener('click', disableShortcut.bind(this, options));
