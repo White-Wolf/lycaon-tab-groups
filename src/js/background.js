@@ -368,9 +368,9 @@ async function createGroupInWindowIfMissing(browserWindow) {
 async function setupWindows() {
   const windows = await browser.windows.getAll({});
 
-  windows.forEach(async (window) => {
-    await createGroupInWindowIfMissing(window);
-  });
+  for(const win of windows) {
+    await createGroupInWindowIfMissing(win);
+  }
 }
 
 /** Put any tabs that do not have a group into the active group */
@@ -379,15 +379,15 @@ async function salvageGrouplessTabs() {
   const windows = {};
   const tWindows = await browser.windows.getAll({});
 
-  tWindows.forEach(async (window) => {
-    windows[window.id] = { groups: null };
-    windows[window.id].groups = await browser.sessions.getWindowValue(window.id, 'groups');
-  });
+  for(const win of tWindows) {
+    windows[win.id] = { groups: null };
+    windows[win.id].groups = await browser.sessions.getWindowValue(win.id, 'groups');
+  }
 
   // check all tabs
   const tabs = await browser.tabs.query({});
 
-  tabs.forEach(async (tab) => {
+  for(const tab of tabs) {
     const groupId = await browser.sessions.getTabValue(tab.id, 'groupId');
 
     let groupExists = false;
@@ -401,7 +401,7 @@ async function salvageGrouplessTabs() {
       const activeGroup = await browser.sessions.getWindowValue(tab.windowId, 'activeGroup');
       await browser.sessions.setTabValue(tab.id, 'groupId', activeGroup);
     }
-  });
+  }
 }
 
 async function init() {
