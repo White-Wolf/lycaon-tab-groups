@@ -91,32 +91,24 @@ async function captureThumbnail(tab) {
   // Only capture a new thumbnail if there's no cached one,
   // the cached one doesn't have a capturedTime,
   // or the tab was accessed since the cache was made
-  if (!cachedThumbnail || !cachedThumbnail.capturedTime
+  if (!cachedThumbnail || !cachedThumbnail.thumbnail || !cachedThumbnail.capturedTime
     || cachedThumbnail.capturedTime < tab.lastAccessed) {
-    const data = await browser.tabs.captureTab(tabId, { format: 'jpeg', quality: 25 });
-    const img = new Image();
-
-    img.onload = async function f() {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-
-      canvas.width = 500;
-      canvas.height = canvas.width * (this.height / this.width);
-
-      // ctx.imageSmoothingEnabled = true;
-      // ctx.imageSmoothingQuality = 'high';
-      ctx.drawImage(this, 0, 0, canvas.width, canvas.height);
-
-      const thumbnail = canvas.toDataURL('image/jpeg', 0.7);
-
-      updateThumbnail(tabId, thumbnail);
-      browser.sessions.setTabValue(tabId, 'thumbnail', {
-        thumbnail,
-        capturedTime: Date.now(),
-      });
-    };
-
-    img.src = data;
+    const data = await browser.tabs.captureTab(tabId, {
+      format: 'jpeg',
+      quality: 50,
+      scale: 500 / tab.width,
+      rect: {
+        x: 0,
+        y:0,
+        width: tab.width,
+        height: tab.width * (tab.height / tab.width)
+      }
+    });
+    updateThumbnail(tabId, data);
+    browser.sessions.setTabValue(tabId, 'thumbnail', {
+      thumbnail: data,
+      capturedTime: Date.now(),
+    });
   }
 }
 
